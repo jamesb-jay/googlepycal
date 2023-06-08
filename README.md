@@ -22,7 +22,7 @@ cal = connection.get_calendar("ph5hgiju22q1pg77fegbc6d5ug")
 
 
 now = timepoint.utcnow()
-in1week = now + timedelta(days=2)
+in1week = now + timedelta(days=7)
 in1day = now + timedelta(days=1)
 
 # Get a list of events
