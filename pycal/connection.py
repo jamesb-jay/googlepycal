@@ -7,7 +7,7 @@ from googleapiclient.discovery import build as build_service
 
 from . import calendar
 
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 CALENDAR_VERSION = "v3"
 
 class APIConnection:

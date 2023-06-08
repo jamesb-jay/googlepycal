@@ -161,5 +161,6 @@ cython_debug/
 
 # Pycal
 testing.py
+testing2.py
 credentials.json
 token.json

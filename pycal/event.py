@@ -7,10 +7,13 @@ class Event:
     start = None
     end = None
 
-    description = None
-    colorId = None
+    summary = None
+    link = None
     
-    def __init__(self) -> None: ...
+    def __init__(self, start, end, summary, link) -> None:
+        self.parse_timestamps(start, end)
+        self.summary = summary
+        self.link = link 
 
     def parse_timestamps(self, startTime: str, endTime: str):
         self.set_timepoints(
@@ -30,7 +33,7 @@ class Event:
         return f"{start} to {end}"
 
     def __str__(self) -> str:
-        return f"{self.description}: {self.startEndFormatted}"
+        return f"{self.summary}: {self.startEndFormatted}"
     
     def __repr__(self) -> str:
         return super().__repr__() + f": {self}" 

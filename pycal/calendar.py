@@ -22,12 +22,14 @@ class Calendar:
         returnList = []
 
         for e in events:
-            newEvent = Event()
-            newEvent.description = e["summary"]
-            newEvent.parse_timestamps(e["start"].get("dateTime"), e["end"].get("dateTime"))
+
+            newEvent = Event(e["start"].get("dateTime"), e["end"].get("dateTime"), e.get("summary"), e.get("htmlLink"))
             returnList.append(newEvent)
         
         return returnList
+    
+    def add_event(event: Event):
+        pass
 
 
     def _convert_date(self, date) -> str:
