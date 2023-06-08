@@ -28,6 +28,12 @@ class Calendar:
             returnList.append(newEvent)
         
         return returnList
+
+    def get_event_by_id(self, eventId):
+        e = self.service.events().get(calendarId=self.calendarId, eventId=eventId).execute()
+        newEvent = Event(e["start"].get("dateTime"), e["end"].get("dateTime"), e.get("summary"))
+        newEvent.eventId = e.get("id")
+        return newEvent
     
     def add_event(self, event: Event):
         createdEvent = self.service.events().insert(calendarId=self.calendarId, body=event.body).execute()
