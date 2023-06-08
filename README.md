@@ -1,10 +1,12 @@
 # googlepycal
 A very bad wrapper for the Google Calender API
 
-## Example usage
- - Ensure the correct packages are installed (run install.bat)
+## Setup
+ - Ensure the correct packages are installed (or just run install.bat)
  - Get your `credentials.json` from google APIs
- - Authentication occurs when APIConnection is instantiated 
+ - `token.json` is created automatically
+
+## Example usage
 
 ```Python
 from pycal.connection import APIConnection
