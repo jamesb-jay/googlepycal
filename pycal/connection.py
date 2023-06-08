@@ -31,7 +31,7 @@ class APIConnection:
 
         self._build_service()
         
-    def get_calendar(self, calendarId):
+    def get_calendar(self, calendarId) -> calendar.Calendar:
         return calendar.Calendar(self.service, calendarId)
 
     def _refresh_credentials(self):
