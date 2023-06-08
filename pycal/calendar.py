@@ -23,14 +23,22 @@ class Calendar:
 
         for e in events:
 
-            newEvent = Event(e["start"].get("dateTime"), e["end"].get("dateTime"), e.get("summary"), e.get("htmlLink"))
+            newEvent = Event(e["start"].get("dateTime"), e["end"].get("dateTime"), e.get("summary"))
+            newEvent.eventId = e.get("id")
             returnList.append(newEvent)
         
         return returnList
     
-    def add_event(event: Event):
-        pass
-
+    def add_event(self, event: Event):
+        createdEvent = self.service.events().insert(calendarId=self.calendarId, body=event.body).execute()
+        event.eventId = createdEvent.get("id")
+        return event
+    
+    def update_event(self, event: Event):
+        self.service.events().update(calendarId=self.calendarId, eventId=event.eventId, body=event.body).execute()
+    
+    def delete_event(self, event: Event):
+        self.service.events().delete(calendarId=self.calendarId, eventId=event.eventId).execute()
 
     def _convert_date(self, date) -> str:
         assert isinstance(date, timepoint)
