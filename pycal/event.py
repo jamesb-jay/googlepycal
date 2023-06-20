@@ -4,19 +4,49 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
 
 class Event:
 
+    def GetEvents(self, timeFrom: timepoint, timeTo: timepoint, service, calendarId):
+        service_results = service.events().list(calendarId=calendarId, 
+                                            timeMin=self._convert_date(timeFrom), 
+                                            timeMax=self._convert_date(timeTo), 
+                                            singleEvents=True,
+                                            orderBy='startTime').execute()
+        
+        events = service_results.get("items", [])
+        returnList = []
+
+        for e in events:
+            returnList.append(
+                Event.GetEventFromId(service, calendarId, e.get("id"))
+            )
+        
+        return returnList
+
+    def GetEventFromId(service, calendarId, eventId):
+        service_event = service.events().get(calendarId=calendarId, eventId=eventId).execute()
+        newEvent = Event(service, calendarId)
+
+        newEvent.parse_timestamps(service_event["start"].get("dateTime"), service_event["end"].get("dateTime"))
+        newEvent.summary = service_event.get("summary")
+        newEvent.eventId = service_event.get("id")
+
+        return newEvent
+    
+
+
+
+    service = None
+    calendarId = None
+    eventId = None
+
     start = None
     end = None
 
     summary = None
-    eventId = None
     colorId = None
-    
-    def __init__(self, start, end, summary) -> None:
-        if isinstance(start, str):
-            self.parse_timestamps(start, end)
-        else:
-            self.set_timepoints(start, end)
-        self.summary = summary
+
+    def __init__(self, service, calendarId) -> None:
+        self.service = service
+        self.calendarId = calendarId
 
     def parse_timestamps(self, startTime: str, endTime: str):
         self.set_timepoints(
@@ -28,7 +58,6 @@ class Event:
         self.start = startTime
         self.end = endTime
 
-    
     def set_color(self, colorId):
         self.colorId = colorId
 
@@ -37,6 +66,10 @@ class Event:
         for id, col in colors['event'].items():
             print(f"colorId: {id}\n  Fg -> {col['foreground']}\n  Bg -> {col['background']}")
         
+    @property
+    def valid(self):
+        return self.service and self.calendarId
+
     @property
     def body(self):
         return {
