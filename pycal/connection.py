@@ -34,6 +34,7 @@ class APIConnection:
     def get_calendar(self, calendarId) -> calendar.Calendar:
         return calendar.Calendar(self.service, calendarId)
 
+
     def _refresh_credentials(self):
         ''' Refresh credentials & generate token '''
         assert self.credentialsPath != None
@@ -50,3 +51,10 @@ class APIConnection:
 
     def _build_service(self):
         self.service = build_service("calendar", CALENDAR_VERSION, credentials=self.credentials)
+
+
+def print_colors_key(conn: APIConnection):
+    colors =  conn.service.colors().get().execute()
+    for id, col in colors['event'].items():
+        print(f"colorId: {id}\n  Fg -> {col['foreground']}\n  Bg -> {col['background']}")
+        

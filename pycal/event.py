@@ -1,13 +1,19 @@
 from datetime import datetime as timepoint
+from .exceptions import InvalidEventException
 
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
 
 class Event:
 
-    def GetEvents(self, timeFrom: timepoint, timeTo: timepoint, service, calendarId):
+    def GetEvents(timeFrom: timepoint, timeTo: timepoint, service, calendarId):
+        def _convert_date(date) -> str:
+            assert isinstance(date, timepoint)
+
+            return date.isoformat() + "Z"
+
         service_results = service.events().list(calendarId=calendarId, 
-                                            timeMin=self._convert_date(timeFrom), 
-                                            timeMax=self._convert_date(timeTo), 
+                                            timeMin=Event._ConvertDate(timeFrom), 
+                                            timeMax=Event._ConvertDate(timeTo), 
                                             singleEvents=True,
                                             orderBy='startTime').execute()
         
@@ -31,6 +37,11 @@ class Event:
 
         return newEvent
     
+
+    def _ConvertDate(date) -> str:
+        assert isinstance(date, timepoint)
+
+        return date.isoformat() + "Z"
 
 
 
@@ -61,14 +72,22 @@ class Event:
     def set_color(self, colorId):
         self.colorId = colorId
 
-    def get_colors_key(service):
-        colors =  service.colors().get().execute()
-        for id, col in colors['event'].items():
-            print(f"colorId: {id}\n  Fg -> {col['foreground']}\n  Bg -> {col['background']}")
-        
+
+    def create(self):
+        if not self.valid:
+            raise InvalidEventException("Invalid events cannot be created.")
+        createdEvent = self.service.events().insert(calendarId=self.calendarId, body=self.body).execute()
+        self.eventId = createdEvent.get("id")
+
+    def update(self):
+        self.service.events().update(calendarId=self.calendarId, eventId=self.eventId, body=self.body).execute()
+
+    def delete_event(self):
+        self.service.events().delete(calendarId=self.calendarId, eventId=self.eventId).execute()
+
     @property
     def valid(self):
-        return self.service and self.calendarId
+        return self.service and self.calendarId and self.start and self.end and self.summary
 
     @property
     def body(self):
