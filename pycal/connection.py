@@ -1,9 +1,12 @@
 from os import path as FilePath
+from os import remove as removeFile
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials as GoogleCreds
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build as build_service
+
+from google.auth.exceptions import RefreshError
 
 from . import calendar
 
@@ -41,7 +44,11 @@ class APIConnection:
         assert self.tokenPath != None
 
         if self.credentials and self.credentials.expired and self.credentials.refresh_token:
-            self.credentials.refresh(Request())
+            try:
+                self.credentials.refresh(Request())
+            except RefreshError as e:
+                print(f"[Pycal] Error refreshing credentials:\n {e}")
+                exit()
         else:
             flow = InstalledAppFlow.from_client_secrets_file(self.credentialsPath, SCOPES)
             self.credentials = flow.run_local_server(port=0)

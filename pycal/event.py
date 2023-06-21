@@ -6,10 +6,6 @@ TIME_FORMAT = '%Y-%m-%dT%H:%M:%S%z'
 class Event:
 
     def GetEvents(timeFrom: timepoint, timeTo: timepoint, service, calendarId):
-        def _convert_date(date) -> str:
-            assert isinstance(date, timepoint)
-
-            return date.isoformat() + "Z"
 
         service_results = service.events().list(calendarId=calendarId, 
                                             timeMin=Event._ConvertDate(timeFrom), 
@@ -20,9 +16,9 @@ class Event:
         events = service_results.get("items", [])
         returnList = []
 
-        for e in events:
+        for service_result in events:
             returnList.append(
-                Event.GetEventFromId(service, calendarId, e.get("id"))
+                Event.GetEventFromId(service, calendarId, service_result.get("id"))
             )
         
         return returnList
@@ -82,7 +78,7 @@ class Event:
     def update(self):
         self.service.events().update(calendarId=self.calendarId, eventId=self.eventId, body=self.body).execute()
 
-    def delete_event(self):
+    def delete(self):
         self.service.events().delete(calendarId=self.calendarId, eventId=self.eventId).execute()
 
     @property
