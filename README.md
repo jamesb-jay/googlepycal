@@ -10,34 +10,45 @@ A very bad wrapper for the Google Calender API
 
 ```Python
 from pycal.connection import APIConnection
-from pycal.event import Event
 
 from datetime import datetime as timepoint
 from datetime import timedelta
 
+# Some times for examples
+now = timepoint.utcnow()
+in1hour = now + timedelta(hours=1)
+in2hour = now + timedelta(hours=2)
+in1day = now + timedelta(days=1)
+in1week = now + timedelta(days=2)
 
+
+# Create a connection
 connection = APIConnection("credentials.json", "token.json")
 
-cal = connection.get_calendar("ph5hgiju22q1pg77fegbc6d5ug")
+
+# Get a calendar using an id
+exampleCalendar = connection.get_calendar("primary")
 
 
-now = timepoint.utcnow()
-in1week = now + timedelta(days=7)
-in1day = now + timedelta(days=1)
+# Get a list of events in given timeframe
+eventList = exampleCalendar.get_events(now, in1week)
+print(eventList)
 
-# Get a list of events
-print(cal.get_events(now, in1week))
 
-# Create event
-e1 = Event(in1day, in1week, "Intereting summary")
-e1.colorId = 5
-# Get returned event to update the eventId
-e1 = cal.add_event(e1)
+# Create event & add to calendar
+newEvent = exampleCalendar.new_event()
 
-# Change an existing event
-e1.summary = "Even interestinger summary"
-cal.update_event(e1)
+newEvent.set_timepoints(in1hour, in2hour)
+newEvent.summary = "Example 1 hour event"
+newEvent.set_color(5)
 
-# Delete an event
-cal.delete_event(e1)
+newEvent.create()
+
+
+# Update an existing event
+newEvent.summary = "Better title for 1 hour event."
+newEvent.update()
+
+# Delete the event
+newEvent.delete()
 ```

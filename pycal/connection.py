@@ -1,9 +1,12 @@
 from os import path as FilePath
+from os import remove as removeFile
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials as GoogleCreds
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build as build_service
+
+from google.auth.exceptions import RefreshError
 
 from . import calendar
 
@@ -34,13 +37,18 @@ class APIConnection:
     def get_calendar(self, calendarId) -> calendar.Calendar:
         return calendar.Calendar(self.service, calendarId)
 
+
     def _refresh_credentials(self):
         ''' Refresh credentials & generate token '''
         assert self.credentialsPath != None
         assert self.tokenPath != None
 
         if self.credentials and self.credentials.expired and self.credentials.refresh_token:
-            self.credentials.refresh(Request())
+            try:
+                self.credentials.refresh(Request())
+            except RefreshError as e:
+                print(f"[Pycal] Error refreshing credentials:\n {e}")
+                exit()
         else:
             flow = InstalledAppFlow.from_client_secrets_file(self.credentialsPath, SCOPES)
             self.credentials = flow.run_local_server(port=0)
@@ -50,3 +58,10 @@ class APIConnection:
 
     def _build_service(self):
         self.service = build_service("calendar", CALENDAR_VERSION, credentials=self.credentials)
+
+
+def print_colors_key(conn: APIConnection):
+    colors =  conn.service.colors().get().execute()
+    for id, col in colors['event'].items():
+        print(f"colorId: {id}\n  Fg -> {col['foreground']}\n  Bg -> {col['background']}")
+        
